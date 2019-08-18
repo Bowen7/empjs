@@ -4,6 +4,7 @@ parser = module.exports = {};
 
 // todo -------------------------------
 // 类似<style scoped>中的scoped属性识别
+// 识别文本内容 如<text>1234</text>中的1234
 // serialize
 
 const tagName = "([a-zA-Z_][\\w\\-\\.]*)";
