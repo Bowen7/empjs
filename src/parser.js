@@ -1,5 +1,10 @@
+const util = require("util");
 const source = require("./source");
 parser = module.exports = {};
+
+// todo -------------------------------
+// 类似<style scoped>中的scoped属性识别
+// serialize
 
 const tagName = "([a-zA-Z_][\\w\\-\\.]*)";
 const startTag = new RegExp("^<" + tagName);
@@ -81,12 +86,13 @@ const parseHtml = (source, startF = () => {}, endF = () => {}) => {
 			if (end) {
 				advance(end[0].length);
 				match.end = index;
+				match.unary = !!end[1];
 				return match;
 			}
 		}
 	}
 	function handleStartTag(match) {
-		const { tag } = match;
+		const { tag, unary } = match;
 		const attrs = match.attrs.map(attr => {
 			const [, name, value] = attr;
 			return {
@@ -94,12 +100,14 @@ const parseHtml = (source, startF = () => {}, endF = () => {}) => {
 				value
 			};
 		});
-		stack.push({
-			tag,
-			attrs
-		});
-		lastTag = tag;
-		startF(tag, attrs, match.start, match.end);
+		if (!unary) {
+			stack.push({
+				tag,
+				attrs
+			});
+			lastTag = tag;
+		}
+		startF(tag, attrs, unary, match.start, match.end);
 	}
 	function parseEndTag(tagName, start, end) {
 		const pop = stack.pop();
@@ -116,13 +124,13 @@ parser.parse = source => {
 	const stack = [];
 	parseHtml(source, start, end);
 	return res;
-	function start(tag, attrs, start, end) {
-		const element = { tag, attrs, children: [] };
+	function start(tag, attrs, unary, start, end) {
+		const element = { tag, attrs, children: [], start };
 		if (stack.length > 0) {
-			if (tag === "div") {
-			}
 			stack[stack.length - 1].children.push(element);
-			stack.push(element);
+			if (!unary) {
+				stack.push(element);
+			}
 		} else {
 			if (res[tag]) {
 				res[tag].push(element);
@@ -131,8 +139,9 @@ parser.parse = source => {
 		}
 	}
 	function end(tag, start, end) {
-		stack.pop();
+		const element = stack.pop();
+		element.end = end - 1;
 	}
 };
 const res = parser.parse(source);
-console.log(res.template[0].children[0]);
+console.log(util.inspect(res, false, null));

@@ -1,6 +1,7 @@
 <template>
   <div>
     test
+    <img />
   </div>
 </template>
 
@@ -16,5 +17,5 @@ export default {
 </script>
 
 
-<style scoped>
+<style scoped=true>
 </style>
