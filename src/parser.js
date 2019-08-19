@@ -3,18 +3,21 @@ const source = require("./source");
 parser = module.exports = {};
 
 // todo -------------------------------
-// 类似<style scoped>中的scoped属性识别
-// 识别文本内容 如<text>1234</text>中的1234
 // serialize
 
 const tagName = "([a-zA-Z_][\\w\\-\\.]*)";
 const startTag = new RegExp("^<" + tagName);
 const startTagClose = /^\s*(\/?)>/;
 const endTag = new RegExp("^</(" + tagName + ")[^>]*>");
-const attribute = /\s*([^<>=]+)=\s*([^<>=]+)/;
+const attribute = /\s*([^\s<>=]+)(?:\s*=\s*)?([^\s<>=]*)/;
 const plainTextElement = ["script", "style"];
 
-const parseHtml = (source, startF = () => {}, endF = () => {}) => {
+const parseHtml = (
+	source,
+	startF = () => {},
+	endF = () => {},
+	charsF = () => {}
+) => {
 	let index = 0;
 	let lastTag;
 	const stack = [];
@@ -45,20 +48,26 @@ const parseHtml = (source, startF = () => {}, endF = () => {}) => {
 					}
 					tagStartIndex += next;
 				}
+				const text = source.slice(0, tagStartIndex);
+				charsF(text, index, index + text.length - 1);
 				rest = source.slice(tagStartIndex);
 				advance(tagStartIndex);
 			}
 			if (tagStartIndex < 0) {
-				text = source;
 				source = "";
 			}
 		} else {
 			let endTagLength = 0;
-			const capture = new RegExp("([\\S\\s]*?)" + lastTag + "[^>]*>");
+			const capture = new RegExp(
+				"([\\S\\s]*?)" + "<[^<]" + lastTag + "[^>]*>"
+			);
+			let tagText;
 			const _source = source.replace(capture, (all, text, endTag) => {
 				endTagLength = endTag.length;
+				tagText = text;
 				return "";
 			});
+			charsF(tagText, index, index + tagText.length - 1);
 			advance(source.length - _source.length);
 			parseEndTag(lastTag, index - endTagLength, index);
 		}
@@ -82,6 +91,9 @@ const parseHtml = (source, startF = () => {}, endF = () => {}) => {
 				(attr = source.match(attribute))
 			) {
 				advance(attr[0].length);
+				if (attr[2] === "") {
+					attr[2] = true;
+				}
 				match.attrs.push(attr);
 			}
 			if (end) {
@@ -123,14 +135,16 @@ const parseHtml = (source, startF = () => {}, endF = () => {}) => {
 parser.parse = source => {
 	const res = { template: [], script: [], style: [] };
 	const stack = [];
-	parseHtml(source, start, end);
+	parseHtml(source, start, end, chars);
 	return res;
 	function start(tag, attrs, unary, start, end) {
-		const element = { tag, attrs, children: [], start };
+		const element = { tag, attrs, children: [], start, content: [] };
 		if (stack.length > 0) {
 			stack[stack.length - 1].children.push(element);
 			if (!unary) {
 				stack.push(element);
+			} else {
+				element.end = end - 1;
 			}
 		} else {
 			if (res[tag]) {
@@ -142,6 +156,16 @@ parser.parse = source => {
 	function end(tag, start, end) {
 		const element = stack.pop();
 		element.end = end - 1;
+	}
+	function chars(text, start, end) {
+		if (stack.length > 0) {
+			const top = stack[stack.length - 1];
+			top.content.push({
+				text,
+				start,
+				end
+			});
+		}
 	}
 };
 const res = parser.parse(source);

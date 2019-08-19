@@ -1,7 +1,8 @@
-<template>
+<template lang="vue" test="11" xx yy>
   <div>
     test
     <img />
+    <text>123</text>
   </div>
 </template>
 
@@ -17,5 +18,5 @@ export default {
 </script>
 
 
-<style scoped=true>
+<style scoped>
 </style>
