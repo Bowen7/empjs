@@ -3,7 +3,7 @@ const source = require("./source");
 parser = module.exports = {};
 
 // todo -------------------------------
-// serialize
+//
 
 const tagName = "([a-zA-Z_][\\w\\-\\.]*)";
 const startTag = new RegExp("^<" + tagName);
@@ -133,12 +133,12 @@ const parseHtml = (
 };
 
 parser.parse = source => {
-	const res = { template: [], script: [], style: [] };
+	const res = [];
 	const stack = [];
 	parseHtml(source, start, end, chars);
 	return res;
 	function start(tag, attrs, unary, start, end) {
-		const element = { tag, attrs, children: [], start, content: [] };
+		const element = { tag, attrs, unary, children: [], start, content: [] };
 		if (stack.length > 0) {
 			stack[stack.length - 1].children.push(element);
 			if (!unary) {
@@ -147,10 +147,8 @@ parser.parse = source => {
 				element.end = end - 1;
 			}
 		} else {
-			if (res[tag]) {
-				res[tag].push(element);
-				stack.push(element);
-			}
+			res.push(element);
+			stack.push(element);
 		}
 	}
 	function end(tag, start, end) {
@@ -168,5 +166,51 @@ parser.parse = source => {
 		}
 	}
 };
+parser.serialize = node => {
+	let source = "";
+	// console.log(util.inspect(node, false, null));
+	node.forEach(item => {
+		source += serializeNode(item) + "\n";
+	});
+	console.log(source);
+	return source;
+	function serializeNode(node) {
+		const { tag, attrs, unary, children, content } = node;
+		let attrString = "";
+		attrs.forEach(attr => {
+			const { name, value } = attr;
+			if (value === true) {
+				attrString += ` ${name}`;
+			} else {
+				attrString += ` ${name}=${value}`;
+			}
+		});
+		if (unary) {
+			return `<${tag}${attrString} />`;
+		}
+		const childrenLength = children.length;
+		const contentLength = content.length;
+		let serializedChildNodes = "";
+		let childrenIndex = 0;
+		let contentIndex = 0;
+		while (childrenIndex < childrenLength || contentIndex < contentLength) {
+			if (childrenIndex >= childrenLength) {
+				serializedChildNodes += content[contentIndex++].text;
+				continue;
+			}
+			if (contentIndex >= contentLength) {
+				serializedChildNodes += serializeNode(
+					children[childrenIndex++]
+				);
+				continue;
+			}
+			serializedChildNodes +=
+				content[contentIndex].start > children[childrenIndex].start
+					? serializeNode(children[childrenIndex++])
+					: content[contentIndex++].text;
+		}
+		return `<${tag}${attrString} >${serializedChildNodes}</${tag}>`;
+	}
+};
 const res = parser.parse(source);
-console.log(util.inspect(res, false, null));
+parser.serialize(res);
