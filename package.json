@@ -1,17 +1,20 @@
 {
-  "name": "v2mp",
+  "name": "sfm",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "./src/v2mp-loader.js",
   "scripts": {
-    "start": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Bowen",
   "license": "ISC",
-  "devDependencies": {
-    "webpack": "^4.39.1",
-    "webpack-cli": "^3.3.6"
-  },
-  "dependencies": {}
+  "devDependencies": {},
+  "dependencies": {
+    "@babel/generator": "^7.5.5",
+    "@babel/parser": "^7.5.5",
+    "@babel/template": "^7.4.4",
+    "@babel/traverse": "^7.5.5",
+    "@babel/types": "^7.5.5",
+    "webpack-sources": "^1.4.3"
+  }
 }

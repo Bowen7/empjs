@@ -1,5 +1,9 @@
 const util = require("util");
-const source = require("./source");
+// const source = require("./source");
+const p = require("@babel/parser");
+const generate = require("@babel/generator")["default"];
+const traverse = require("@babel/traverse")["default"];
+const t = require("@babel/types");
 parser = module.exports = {};
 
 // todo -------------------------------
@@ -10,67 +14,68 @@ const startTag = new RegExp("^<" + tagName);
 const startTagClose = /^\s*(\/?)>/;
 const endTag = new RegExp("^</(" + tagName + ")[^>]*>");
 const attribute = /\s*([^\s<>=]+)(?:\s*=\s*)?([^\s<>=]*)/;
-const plainTextElement = ["script", "style"];
+// const plainTextElement = ["script", "style"];
 
 const parseHtml = (
 	source,
-	startF = () => {},
-	endF = () => {},
-	charsF = () => {}
+	startCb = () => {},
+	endCb = () => {},
+	charsCb = () => {}
 ) => {
 	let index = 0;
-	let lastTag;
+	// let lastTag;
 	const stack = [];
 	while (source) {
-		if (!lastTag || !~plainTextElement.indexOf(lastTag)) {
-			let tagStartIndex = source.indexOf("<");
-			if (tagStartIndex === 0) {
-				const endTagMatch = source.match(endTag);
-				if (endTagMatch) {
-					const curIndex = index;
-					advance(endTagMatch[0].length);
-					parseEndTag(endTagMatch[1], curIndex, index);
-					continue;
-				}
-				const startTagMatch = parseStartTag();
-				if (startTagMatch) {
-					handleStartTag(startTagMatch);
-					continue;
-				}
+		// 简化流程
+		// if (!lastTag || !~plainTextElement.indexOf(lastTag)) {
+		let tagStartIndex = source.indexOf("<");
+		if (tagStartIndex === 0) {
+			const endTagMatch = source.match(endTag);
+			if (endTagMatch) {
+				const curIndex = index;
+				advance(endTagMatch[0].length);
+				parseEndTag(endTagMatch[1], curIndex, index);
+				continue;
 			}
-			let rest = void 0;
-			if (tagStartIndex >= 0) {
-				rest = source.slice(tagStartIndex);
-				while (!endTag.test(rest) && !startTag.test(rest)) {
-					const next = rest.indexOf("<");
-					if (next < 0) {
-						break;
-					}
-					tagStartIndex += next;
-				}
-				const text = source.slice(0, tagStartIndex);
-				charsF(text, index, index + text.length - 1);
-				rest = source.slice(tagStartIndex);
-				advance(tagStartIndex);
+			const startTagMatch = parseStartTag();
+			if (startTagMatch) {
+				handleStartTag(startTagMatch);
+				continue;
 			}
-			if (tagStartIndex < 0) {
-				source = "";
-			}
-		} else {
-			let endTagLength = 0;
-			const capture = new RegExp(
-				"([\\S\\s]*?)" + "<[^<]" + lastTag + "[^>]*>"
-			);
-			let tagText;
-			const _source = source.replace(capture, (all, text, endTag) => {
-				endTagLength = endTag.length;
-				tagText = text;
-				return "";
-			});
-			charsF(tagText, index, index + tagText.length - 1);
-			advance(source.length - _source.length);
-			parseEndTag(lastTag, index - endTagLength, index);
 		}
+		if (tagStartIndex >= 0) {
+			let rest = source.slice(tagStartIndex);
+			while (!endTag.test(rest) && !startTag.test(rest)) {
+				const next = rest.indexOf("<");
+				if (next < 0) {
+					break;
+				}
+				tagStartIndex += next;
+			}
+			const text = source.slice(0, tagStartIndex);
+			charsCb(text, index, index + text.length - 1);
+			advance(tagStartIndex);
+		}
+		if (tagStartIndex < 0) {
+			source = "";
+		}
+		// 简化流程
+		// }
+		// else {
+		// 	let endTagLength = 0;
+		// 	const capture = new RegExp(
+		// 		"([\\S\\s]*?)" + "<[^<]" + lastTag + "[^>]*>"
+		// 	);
+		// 	let tagText;
+		// 	const _source = source.replace(capture, (all, text, endTag) => {
+		// 		endTagLength = endTag.length;
+		// 		tagText = text;
+		// 		return "";
+		// 	});
+		// 	charsCb(tagText, index, index + tagText.length - 1);
+		// 	advance(source.length - _source.length);
+		// 	parseEndTag(lastTag, index - endTagLength, index);
+		// }
 	}
 	function advance(n) {
 		index += n;
@@ -81,7 +86,7 @@ const parseHtml = (
 		if (start) {
 			const match = {
 				tag: start[1],
-				attrs: [],
+				attrs: {},
 				start: index
 			};
 			advance(start[0].length);
@@ -94,40 +99,36 @@ const parseHtml = (
 				if (attr[2] === "") {
 					attr[2] = true;
 				}
-				match.attrs.push(attr);
+				const [, name, value] = attr;
+				match.attrs[name] = value;
 			}
 			if (end) {
 				advance(end[0].length);
 				match.end = index;
-				match.unary = !!end[1];
+				match.selfClose = !!end[1];
 				return match;
 			}
 		}
 	}
 	function handleStartTag(match) {
-		const { tag, unary } = match;
-		const attrs = match.attrs.map(attr => {
-			const [, name, value] = attr;
-			return {
-				name,
-				value
-			};
-		});
-		if (!unary) {
+		const { tag, selfClose, attrs, start, end } = match;
+		if (!selfClose) {
 			stack.push({
 				tag,
 				attrs
 			});
-			lastTag = tag;
+			// lastTag = tag;
 		}
-		startF(tag, attrs, unary, match.start, match.end);
+		startCb(tag, attrs, selfClose, start, end);
 	}
 	function parseEndTag(tagName, start, end) {
 		const pop = stack.pop();
 		if (pop.tag === tagName) {
-			const top = stack[stack.length - 1];
-			lastTag = top && top.tag;
-			endF(tagName, start, end);
+			// const top = stack[stack.length - 1];
+			// lastTag = top && top.tag;
+			endCb(tagName, start, end);
+		} else {
+			console.error("请检查标签嵌套关系");
 		}
 	}
 };
@@ -137,11 +138,18 @@ parser.parse = source => {
 	const stack = [];
 	parseHtml(source, start, end, chars);
 	return res;
-	function start(tag, attrs, unary, start, end) {
-		const element = { tag, attrs, unary, children: [], start, content: [] };
+	function start(tag, attrs, selfClose, start, end) {
+		const element = {
+			tag,
+			attrs,
+			selfClose,
+			children: [],
+			start,
+			content: []
+		};
 		if (stack.length > 0) {
 			stack[stack.length - 1].children.push(element);
-			if (!unary) {
+			if (!selfClose) {
 				stack.push(element);
 			} else {
 				element.end = end - 1;
@@ -168,24 +176,22 @@ parser.parse = source => {
 };
 parser.serialize = node => {
 	let source = "";
-	// console.log(util.inspect(node, false, null));
 	node.forEach(item => {
 		source += serializeNode(item) + "\n";
 	});
-	console.log(source);
 	return source;
 	function serializeNode(node) {
-		const { tag, attrs, unary, children, content } = node;
+		const { tag, attrs, selfClose, children, content } = node;
 		let attrString = "";
-		attrs.forEach(attr => {
-			const { name, value } = attr;
+		for (let name in attrs) {
+			const value = attrs[name];
 			if (value === true) {
 				attrString += ` ${name}`;
 			} else {
 				attrString += ` ${name}=${value}`;
 			}
-		});
-		if (unary) {
+		}
+		if (selfClose) {
 			return `<${tag}${attrString} />`;
 		}
 		const childrenLength = children.length;
@@ -212,5 +218,21 @@ parser.serialize = node => {
 		return `<${tag}${attrString} >${serializedChildNodes}</${tag}>`;
 	}
 };
-const res = parser.parse(source);
-parser.serialize(res);
+// const res = parser.parse(source);
+// // console.log(util.inspect(res, false, null));
+// // console.log(parser.serialize(res));
+// const script = res.filter(item => item.tag === "script")[0];
+// const content = script.content[0].text;
+// console.log(content);
+// const ast = p.parse(content, {
+// 	// parse in strict mode and allow module declarations
+// 	sourceType: "module"
+// });
+// console.log(util.inspect(ast, false, null));
+// traverse(ast, {
+// 	ExportDefaultDeclaration: function(path) {
+// 		console.log(path.get("declaration").get("properties"));
+// 	}
+// });
+// const code = generate(ast);
+// console.log(util.inspect(code, false, null));
