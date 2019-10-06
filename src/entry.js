@@ -1,5 +1,4 @@
 const selector = require("./selector");
-const parser = require("./parser");
 const path = require("path");
 const fs = require("fs");
 const { genJsonObj } = require("./helpers");
@@ -7,8 +6,7 @@ const { genJsonObj } = require("./helpers");
 const getComponents = (pagePath, rootPath) => {
 	const components = [];
 	const page = fs.readFileSync(pagePath).toString();
-	const result = parser.parse(page);
-	const pageJson = selector(result, { type: "json" });
+	const pageJson = selector(page, { type: "json" });
 	const pageJsonContent = genJsonObj(pageJson);
 	const usingComponents = pageJsonContent.usingComponents || {};
 	for (let key in usingComponents) {
@@ -25,8 +23,7 @@ module.exports.getEntries = appPath => {
 	let entryies = { app: path.resolve(appPath) };
 	const appAbPath = path.join(process.cwd(), appPath);
 	const app = fs.readFileSync(appAbPath).toString();
-	const result = parser.parse(app);
-	const appJson = selector(result, { type: "json" });
+	const appJson = selector(app, { type: "json" });
 	const appJsonContent = genJsonObj(appJson);
 	const pages = appJsonContent.pages || [];
 	pages.forEach(page => {

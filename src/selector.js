@@ -1,32 +1,52 @@
-const { serialize } = require("./parser");
-const select = (blocks, query = {}) => {
+// const { serialize } = require("./parser");
+const posthtml = require("posthtml");
+const select = (source, query = {}) => {
+	let result;
 	if (!"type" in query) {
-		return "";
+		return result;
 	}
+	const tree = posthtml().process(source, {
+		sync: true
+	}).tree;
 	const { type } = query;
-	const results = blocks.filter(block => {
+	tree.forEach(block => {
 		switch (type) {
 			case "json": {
-				const mpType = eval("(" + block.attrs["mp-type"] + ")");
-				return block.tag === "script" && mpType === "json";
+				let mpType = "";
+				try {
+					mpType = block.attrs["mp-type"];
+				} catch (error) {}
+				if (block.tag === "script" && mpType === "json") {
+					result = block;
+				}
+				break;
 			}
 			case "script": {
-				const mpType = eval("(" + block.attrs["mp-type"] + ")");
-				return block.tag === "script" && mpType !== "json";
+				let mpType = "";
+				try {
+					mpType = block.attrs["mp-type"];
+				} catch (error) {}
+				if (block.tag === "script" && mpType !== "json") {
+					result = block;
+				}
+				break;
 			}
 			default:
-				return block.tag === type;
+				if (block.tag === type) {
+					result = block;
+				}
 		}
 	});
-	if (results.length === 0) {
+	if (!result) {
 		return "";
 	}
-	const result = results.pop();
 	if (type === "template") {
-		return serialize(result.children);
-	} else if (result.content.length > 0) {
-		return result.content[0].text;
+		return posthtml().process(result.content, {
+			sync: true,
+			skipParse: true
+		}).html;
+	} else {
+		return result.content.join("");
 	}
-	return "";
 };
 module.exports = select;
