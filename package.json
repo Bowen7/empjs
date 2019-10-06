@@ -1,9 +1,10 @@
 {
-  "name": "sfm",
+  "name": "sfm-loader",
   "version": "0.0.1",
-  "description": "",
+  "description": "single file miniprogram loader",
   "main": "./src/v2mp-loader.js",
   "scripts": {
+    "release": "npm version patch && npm publish",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Bowen",

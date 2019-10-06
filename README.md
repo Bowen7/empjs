@@ -1,2 +1,1 @@
-# v2mp
-vue to miniprogram
+# single file miniprogram loader
