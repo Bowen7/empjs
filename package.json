@@ -1,6 +1,6 @@
 {
   "name": "sfm-loader",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "single file miniprogram loader",
   "main": "./src/v2mp-loader.js",
   "scripts": {
