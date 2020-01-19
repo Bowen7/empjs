@@ -1,26 +1,38 @@
 const path = require("path");
+const hash = require("hash-sum");
+const qs = require("qs");
 const selector = require("./selector");
-const { genJson } = require("./helpers");
+const loaderUtils = require("loader-utils");
+const walk = require("./walk");
+const componentNormalizerPath = require.resolve(
+	"./runtime/componentNormalizer"
+);
 
 module.exports = function(source) {
-	if (this.query) {
-		return selector(source, JSON.parse(this.query.slice(1)));
+	const loaderContext = this;
+	const { context, resourcePath, resourceQuery, rootContext } = this;
+	const rawQuery = resourceQuery.slice(1);
+	const loaderQuery = qs.parse(rawQuery);
+
+	if (loaderQuery.type) {
+		return selector(source, loaderQuery.type);
 	}
-	const basename = path.basename(this.resourcePath);
-	const styleQuery = JSON.stringify({ type: "style" });
-	const style = `const __v2mp__style__ = require('!!mini-css-extract-plugin/dist/loader.js!css-loader!sfm?${styleQuery}!./${basename}');`;
 
-	const script = selector(source, { type: "script" });
+	const stringifyRequest = r => loaderUtils.stringifyRequest(loaderContext, r);
 
-	const emitPath = path
-		.relative(`${this.rootContext}/src`, this.resourcePath)
-		.replace(/\..*/, "");
+	const shortFilePath = path.relative(rootContext, resourcePath);
+	const fileName = path.relative(context, resourcePath);
 
-	const json = selector(source, { type: "json" });
-	this.emitFile(`${emitPath}.json`, genJson(json));
+	const scopeId = hash(shortFilePath);
 
-	const template = selector(source, { type: "template" });
-	this.emitFile(`${emitPath}.wxml`, template);
+	const script = selector(source, "script");
 
-	return `${style}\n${script}`;
+	const { pages, components, configs } = walk(script);
+	return `
+import options from './${fileName}?type=script';
+console.log(options)
+import normalizer from ${stringifyRequest(`!${componentNormalizerPath}`)};
+const component = normalizer(options, '${scopeId}');
+export default component;
+	`;
 };

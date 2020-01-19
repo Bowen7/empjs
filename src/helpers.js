@@ -4,9 +4,9 @@ const traverse = require("@babel/traverse")["default"];
 const t = require("@babel/types");
 
 const helpers = (module.exports = {});
-helpers.genJsonObj = content => {
+helpers.getJson = source => {
 	let json = {};
-	const ast = parser.parse(content, {
+	const ast = parser.parse(source, {
 		sourceType: "module"
 	});
 	traverse(ast, {
@@ -20,6 +20,6 @@ helpers.genJsonObj = content => {
 	});
 	return json;
 };
-helpers.genJson = content => {
-	return JSON.stringify(helpers.genJsonObj(content), null, 2);
+helpers.getJsonStr = source => {
+	return JSON.stringify(helpers.getJson(source), null, 2);
 };
