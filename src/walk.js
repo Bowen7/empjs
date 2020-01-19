@@ -1,12 +1,7 @@
 const path = require("path");
 const acorn = require("acorn");
 const acornWalk = require("acorn-walk");
-const convertObj = node => {
-	const result = {};
-	if (node.type !== "ObjectExpression") {
-		return result;
-	}
-};
+const ast2obj = require("./ast2obj");
 const walk = script => {
 	let importComponents = {};
 	let pages;
@@ -33,19 +28,29 @@ const walk = script => {
 				const { key, value } = prop;
 				const { name = "" } = key;
 				if (name === "_pages") {
-					page = convertObj(value);
+					page = ast2obj(value);
 				} else if (name === "_components") {
-					components = convertObj(value);
+					components = ast2obj(value);
 				}
 				if (name === "_config") {
-					config = convertObj(value);
+					config = ast2obj(value);
 				}
 			});
 		}
 	});
+	// 实际用到的components
+	const usingComponents = {};
+	for (let componentName in components) {
+		const importName = components[componentName];
+		const importPath = importComponents[importName];
+		if (importPath) {
+			usingComponents[componentName] = importPath;
+		}
+	}
+	console.log(pages, components, configs);
 	return {
 		pages,
-		components,
+		components: usingComponents,
 		configs
 	};
 };
