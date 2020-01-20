@@ -2,7 +2,7 @@ const path = require('path')
 
 module.exports = {
   mode: 'development',
-  entry: path.resolve(__dirname, './source/app.js'),
+  entry: path.resolve(__dirname, './source/app.vue'),
   module: {
     rules: [
       {
@@ -17,6 +17,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, '../dist'),
-    filename: 'bundle.js'
+    filename: 'bundle.js',
+    libraryTarget: 'commonjs2'
   }
 }

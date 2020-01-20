@@ -5,6 +5,7 @@ const selector = require('./core/selector')
 const loaderUtils = require('loader-utils')
 const walk = require('./core/walk')
 const componentNormalizerPath = require.resolve('./runtime/componentNormalizer')
+const createAppPath = require.resolve('./runtime/createApp.js')
 
 module.exports = function(source) {
   const loaderContext = this
@@ -27,12 +28,20 @@ module.exports = function(source) {
 
   // todo
   // eslint-disable-next-line no-unused-vars
-  const { pages, components, configs } = walk(script)
-  return `
+  const { app, pages, components, configs } = walk(script)
+  if (app) {
+    return `
+import { createApp } from ${stringifyRequest(`!${createAppPath}`)};
+${script}
+import { getOptions } from ${stringifyRequest(`!${createAppPath}`)};
+export default getOptions;
+`
+  } else {
+    return `
 import options from './${fileName}?type=script';
-console.log(options)
 import normalizer from ${stringifyRequest(`!${componentNormalizerPath}`)};
 const component = normalizer(options, '${scopeId}');
 export default component;
 `
+  }
 }

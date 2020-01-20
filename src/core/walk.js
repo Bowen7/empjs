@@ -7,7 +7,26 @@ const walk = script => {
   let pages
   let components
   let configs = {}
+  let app = false
   acornWalk.simple(acorn.parse(script, { sourceType: 'module' }), {
+    CallExpression(node) {
+      const { callee, arguments: _arguments } = node
+      if (callee.name !== 'createApp') {
+        return
+      }
+      // 调用了createApp就是app.vue
+      // 所以一个项目只能有一个地方调用createApp
+      app = true
+      const options = _arguments[0]
+      const { properties } = options
+      properties.forEach(prop => {
+        const { key, value } = prop
+        const { name = '' } = key
+        if (name === '_pages') {
+          pages = ast2obj(value)
+        }
+      })
+    },
     ImportDeclaration(node) {
       const { specifiers, source } = node
       const { value } = source
@@ -27,12 +46,10 @@ const walk = script => {
       properties.forEach(prop => {
         const { key, value } = prop
         const { name = '' } = key
-        if (name === '_pages') {
-          pages = ast2obj(value)
-        } else if (name === '_components') {
+        if (name === '_components') {
           components = ast2obj(value)
         }
-        if (name === '_config') {
+        if (name === '_configs') {
           configs = ast2obj(value)
         }
       })
@@ -48,9 +65,10 @@ const walk = script => {
     }
   }
   console.log(pages, components, configs)
-  // todo 删除options中的_config, _components, _pages
-  // 使用escodegen？
+  // todo 删除options中的_config, _components, _pages, 减少体积
+  // 后续再做, 使用escodegen？
   return {
+    app,
     pages,
     components: usingComponents,
     configs

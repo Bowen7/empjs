@@ -1,7 +1,12 @@
+// 广度优先将一个对象/数组ast转为js对象/数组
 const ast2obj = ast => {
-  const result = {}
-  if (ast.type !== 'ObjectExpression') {
-    return result
+  let result
+  if (ast.type === 'ObjectExpression') {
+    result = {}
+  } else if (ast.type === 'ArrayExpression') {
+    result = []
+  } else {
+    return {}
   }
   const stack = [{ node: ast, nodePath: result }]
 
