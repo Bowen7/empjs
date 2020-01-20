@@ -48,6 +48,8 @@ const walk = script => {
     }
   }
   console.log(pages, components, configs)
+  // todo 删除options中的_config, _components, _pages
+  // 使用escodegen？
   return {
     pages,
     components: usingComponents,
