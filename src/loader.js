@@ -1,9 +1,9 @@
 const path = require('path')
 const hash = require('hash-sum')
 const qs = require('qs')
-const selector = require('./selector')
+const selector = require('./core/selector')
 const loaderUtils = require('loader-utils')
-const walk = require('./walk')
+const walk = require('./core/walk')
 const componentNormalizerPath = require.resolve('./runtime/componentNormalizer')
 
 module.exports = function(source) {
