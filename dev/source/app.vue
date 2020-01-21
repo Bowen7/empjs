@@ -5,7 +5,7 @@ import indexPage from './pages/index/index.vue'
 import logsPage from './pages/logs/logs.vue'
 
 createApp({
-  _config: {
+  _configs: {
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',

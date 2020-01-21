@@ -3,10 +3,12 @@ const acorn = require('acorn')
 const acornWalk = require('acorn-walk')
 const ast2obj = require('./ast2obj')
 const walk = script => {
-  const importComponents = {}
+  const importSource = {}
   let pages
   let components
   let configs = {}
+  // 实际用到的components
+  let usingComponents
   let app = false
   acornWalk.simple(acorn.parse(script, { sourceType: 'module' }), {
     CallExpression(node) {
@@ -24,6 +26,8 @@ const walk = script => {
         const { name = '' } = key
         if (name === '_pages') {
           pages = ast2obj(value)
+        } else if (name === '_configs') {
+          configs = ast2obj(value)
         }
       })
     },
@@ -34,7 +38,7 @@ const walk = script => {
         const specifier = specifiers[0]
         const { local = {} } = specifier
         const { name = '' } = local
-        importComponents[name] = value
+        importSource[name] = value
       }
     },
     ExportDefaultDeclaration(node) {
@@ -55,16 +59,21 @@ const walk = script => {
       })
     }
   })
-  // 实际用到的components
-  const usingComponents = {}
-  for (const componentName in components) {
-    const importName = components[componentName]
-    const importPath = importComponents[importName]
-    if (importPath) {
-      usingComponents[componentName] = importPath
+  if (app) {
+    pages = pages.map(page => {
+      return importSource[page]
+    })
+  } else {
+    usingComponents = {}
+    for (const componentName in components) {
+      const importName = components[componentName]
+      const importPath = importSource[importName]
+      if (importPath) {
+        usingComponents[componentName] = importPath
+      }
     }
   }
-  console.log(pages, components, configs)
+
   // todo 删除options中的_config, _components, _pages, 减少体积
   // 后续再做, 使用escodegen？
   return {
