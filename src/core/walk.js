@@ -2,6 +2,7 @@ const path = require('path')
 const acorn = require('acorn')
 const acornWalk = require('acorn-walk')
 const ast2obj = require('./ast2obj')
+const utils = require('../utils')
 const walk = script => {
   const importSource = {}
   let pages
@@ -38,7 +39,7 @@ const walk = script => {
         const specifier = specifiers[0]
         const { local = {} } = specifier
         const { name = '' } = local
-        importSource[name] = value
+        importSource[name] = utils.replaceExt(value, '')
       }
     },
     ExportDefaultDeclaration(node) {

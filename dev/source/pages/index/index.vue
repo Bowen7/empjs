@@ -22,11 +22,7 @@ export default {
 }
 </script>
 <style>
-.log-wrap {
-  text-align: center;
-  margin-top: 200px;
-}
-.log {
-  color: gray;
+.btn {
+  margin-top: 100px;
 }
 </style>

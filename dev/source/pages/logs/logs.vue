@@ -21,14 +21,11 @@ export default {
 }
 </script>
 <style>
-.title-wrap {
+.log-wrap {
   text-align: center;
   margin-top: 200px;
 }
-.title {
+.log {
   color: gray;
-}
-.btn {
-  margin-top: 100px;
 }
 </style>

@@ -4,7 +4,7 @@
   "description": "enhanced miniprogram",
   "main": "./src/loader.js",
   "scripts": {
-    "dev": "rm -rf dist && webpack --config ./dev/webpack.config.js",
+    "dev": "rm -rf dist && webpack --config ./dev/webpack.config.js --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Bowen",
