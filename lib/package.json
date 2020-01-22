@@ -1,0 +1,16 @@
+{
+	"name": "empjs",
+	"version": "0.0.1",
+	"description": "enhanced miniprogram",
+	"main": "./core/index.js",
+	"author": "Bowen",
+	"license": "MIT",
+	"dependencies": {
+		"acorn": "^7.1.0",
+		"acorn-walk": "^7.0.0",
+		"hash-sum": "^2.0.0",
+		"loader-utils": "^1.2.3",
+		"posthtml": "^0.11.6",
+		"qs": "^6.9.1"
+	}
+}

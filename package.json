@@ -2,9 +2,10 @@
   "name": "empjs",
   "version": "0.0.1",
   "description": "enhanced miniprogram",
-  "main": "./src/loader.js",
+  "main": "./core/index.js",
   "scripts": {
     "dev": "rm -rf dist && webpack --config ./dev/webpack.config.js --watch",
+    "build": "node build/build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "files": [
@@ -24,6 +25,7 @@
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
+    "shelljs": "^0.8.3",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "yorkie": "^2.0.0"
