@@ -1,5 +1,5 @@
 {
-  "name": "mp-enhanced",
+  "name": "empjs",
   "version": "0.0.1",
   "description": "enhanced miniprogram",
   "main": "./src/loader.js",
@@ -7,6 +7,9 @@
     "dev": "rm -rf dist && webpack --config ./dev/webpack.config.js --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": [
+    "src"
+  ],
   "author": "Bowen",
   "license": "MIT",
   "gitHooks": {

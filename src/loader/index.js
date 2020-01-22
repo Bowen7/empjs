@@ -1,14 +1,14 @@
 const path = require('path')
 const hash = require('hash-sum')
 const qs = require('qs')
-const selector = require('../core/selector')
+const selector = require('./selector')
 const loaderUtils = require('loader-utils')
-const walk = require('../core/walk')
+const walk = require('./walk')
 const utils = require('../utils/index')
 const componentNormalizerPath = require.resolve(
   '../runtime/componentNormalizer'
 )
-const createAppPath = require.resolve('../runtime/createApp.js')
+const coreOptionsPath = require.resolve('../core/options.js')
 let appPath
 
 module.exports = function(source) {
@@ -60,9 +60,9 @@ module.exports = function(source) {
 
   if (app) {
     return `
-import { createApp } from ${stringifyRequest(`!${createAppPath}`)};
+import { createApp } from ${stringifyRequest(`!${coreOptionsPath}`)};
 ${script}
-import { loadSource } from ${stringifyRequest(`!${createAppPath}`)};
+import { loadSource } from ${stringifyRequest(`!${coreOptionsPath}`)};
 export default loadSource;
 `
   } else {
