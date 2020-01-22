@@ -35,6 +35,7 @@
     "acorn-walk": "^7.0.0",
     "hash-sum": "^2.0.0",
     "loader-utils": "^1.2.3",
+    "postcss": "^7.0.26",
     "posthtml": "^0.11.6",
     "qs": "^6.9.1"
   }

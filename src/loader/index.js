@@ -5,6 +5,7 @@ const selector = require('./selector')
 const loaderUtils = require('loader-utils')
 const walk = require('./walk')
 const utils = require('../utils/index')
+const helper = require('./helper')
 const componentNormalizerPath = require.resolve(
   '../runtime/componentNormalizer'
 )
@@ -42,7 +43,7 @@ module.exports = function(source) {
 
   const style = selector(source, 'style')
   const stylePath = utils.replaceExt(shortFilePath, '.wxss')
-  this.emitFile(stylePath, style)
+  helper.emitStyleFiles(loaderContext, style, stylePath, appPath)
 
   const jsonPath = utils.replaceExt(shortFilePath, '.json')
   this.emitFile(jsonPath, JSON.stringify(configs))
@@ -57,7 +58,6 @@ module.exports = function(source) {
     jsPath,
     `const loadSource = require('${relativeBundlePath}').default;loadSource('${scopeId}')`
   )
-
   if (app) {
     return `
 ${script}
