@@ -4,7 +4,7 @@
   "description": "enhanced miniprogram",
   "main": "./core/index.js",
   "scripts": {
-    "dev": "rm -rf dist && webpack --config ./dev/webpack.config.js --watch",
+    "dev": "rm -rf dist && webpack --config ./dev/webpack.config.js --watch --progress",
     "build": "node build/build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

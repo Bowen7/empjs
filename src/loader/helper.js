@@ -47,6 +47,7 @@ helper.emitStyleFiles = (loaderContext, style, stylePath, appPath) => {
       : (importHash[stylePath] = [importPath])
 
     const fileContent = fs.readFileSync(fileAbPath.toString())
+    // css文件更新时触发watch
     loaderContext.addDependency(fileAbPath)
     helper.emitStyleFiles(loaderContext, fileContent, importPath)
   })

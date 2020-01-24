@@ -14,6 +14,8 @@ let appPath
 
 module.exports = function(source) {
   const loaderContext = this
+  // 不要缓存，否则watch时监听不到emitFile的文件改变
+  loaderContext.cacheable(false)
   const { context, resourcePath, resourceQuery } = this
   const rawQuery = resourceQuery.slice(1)
   const loaderQuery = qs.parse(rawQuery)
