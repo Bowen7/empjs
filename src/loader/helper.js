@@ -6,14 +6,6 @@ const helper = {}
 // { a: [b] } a依赖b
 const importHash = {}
 
-const cssGen = node => {
-  let code = ''
-  // 我吐了，这个回调是多次同步执行，需要自己拼接，我还以为是个异步回调！！！
-  postcss.stringify(node, css => {
-    code += css
-  })
-  return code
-}
 helper.emitStyleFiles = (loaderContext, style, stylePath, appPath) => {
   const result = postcss.parse(style)
 
@@ -51,7 +43,7 @@ helper.emitStyleFiles = (loaderContext, style, stylePath, appPath) => {
     loaderContext.addDependency(fileAbPath)
     helper.emitStyleFiles(loaderContext, fileContent, importPath)
   })
-  const css = cssGen(result)
+  const css = result.toString()
   loaderContext.emitFile(utils.replaceExt(stylePath, '.wxss'), css)
 }
 module.exports = helper
