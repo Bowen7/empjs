@@ -20,15 +20,21 @@ module.exports = function(source) {
   const rawQuery = resourceQuery.slice(1)
   const loaderQuery = qs.parse(rawQuery)
 
-  if (loaderQuery.type) {
-    return selector(source, loaderQuery.type)
+  const { type } = loaderQuery
+  if (type) {
+    if (type === 'script') {
+      const script = selector(source, type)
+      const { code } = walk(script)
+      // console.log(script, code)
+      return code
+    }
+    return selector(source, type)
   }
 
   const stringifyRequest = r => loaderUtils.stringifyRequest(loaderContext, r)
 
   const script = selector(source, 'script')
-  const { app, pages, components, configs } = walk(script)
-
+  const { app, pages, components, configs, code } = walk(script)
   if (app) {
     appPath = context
     configs.pages = pages.map(page => {
@@ -62,7 +68,7 @@ module.exports = function(source) {
   )
   if (app) {
     return `
-${script}
+${code}
 import { loadSource } from ${stringifyRequest(`!${coreOptionsPath}`)};
 export default loadSource;
 `
