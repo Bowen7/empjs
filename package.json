@@ -33,8 +33,10 @@
   "dependencies": {
     "acorn": "^7.1.0",
     "acorn-walk": "^7.0.0",
+    "escodegen": "^1.13.0",
     "hash-sum": "^2.0.0",
     "loader-utils": "^1.2.3",
+    "lru-cache": "^5.1.1",
     "postcss": "^7.0.26",
     "posthtml": "^0.11.6",
     "qs": "^6.9.1"

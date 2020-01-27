@@ -4,7 +4,7 @@
 import indexPage from './pages/index/index.vue'
 import logsPage from './pages/logs/logs.vue'
 
-createApp({
+App({
   _configs: {
     window: {
       backgroundTextStyle: 'light',

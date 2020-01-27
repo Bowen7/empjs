@@ -1,9 +1,17 @@
 const path = require('path')
 const acorn = require('acorn')
 const acornWalk = require('acorn-walk')
-const ast2obj = require('./ast2obj')
-const utils = require('../utils')
+const LRU = require('lru-cache')
+const hash = require('hash-sum')
+const escodegen = require('escodegen')
+const ast2obj = require('../loader/ast2obj')
+const replaceExt = require('./replaceExt')
+const cache = new LRU(100)
 const walk = script => {
+  const scriptHash = hash(script)
+  if (cache.has(scriptHash)) {
+    return cache.get(scriptHash)
+  }
   const importSource = {}
   let pages
   let components
@@ -11,10 +19,11 @@ const walk = script => {
   // 实际用到的components
   let usingComponents
   let app = false
-  acornWalk.simple(acorn.parse(script, { sourceType: 'module' }), {
+  const ast = acorn.parse(script, { sourceType: 'module' })
+  acornWalk.ancestor(ast, {
     CallExpression(node) {
       const { callee, arguments: _arguments } = node
-      if (callee.name !== 'createApp') {
+      if (callee.name !== 'App') {
         return
       }
       // 调用了createApp就是app.vue
@@ -22,24 +31,32 @@ const walk = script => {
       app = true
       const options = _arguments[0]
       const { properties } = options
-      properties.forEach(prop => {
+      options.properties = properties.filter(prop => {
         const { key, value } = prop
         const { name = '' } = key
         if (name === '_pages') {
           pages = ast2obj(value)
+          return false
         } else if (name === '_configs') {
           configs = ast2obj(value)
+          return false
         }
+        return true
       })
     },
-    ImportDeclaration(node) {
+    ImportDeclaration(node, ancestors) {
       const { specifiers, source } = node
       const { value } = source
       if (path.extname(value) === '.vue') {
         const specifier = specifiers[0]
         const { local = {} } = specifier
         const { name = '' } = local
-        importSource[name] = utils.replaceExt(value, '')
+        importSource[name] = replaceExt(value, '')
+
+        const parent = ancestors[ancestors.length - 2]
+        if (parent.type === 'Program') {
+          parent.body = parent.body.filter(item => item !== node)
+        }
       }
     },
     ExportDefaultDeclaration(node) {
@@ -48,15 +65,18 @@ const walk = script => {
         return
       }
       const { properties = [] } = declaration
-      properties.forEach(prop => {
+      declaration.properties = properties.filter(prop => {
         const { key, value } = prop
         const { name = '' } = key
         if (name === '_components') {
           components = ast2obj(value)
+          return false
         }
         if (name === '_configs') {
           configs = ast2obj(value)
+          return false
         }
+        return true
       })
     }
   })
@@ -74,14 +94,15 @@ const walk = script => {
       }
     }
   }
-
-  // todo 删除options中的_config, _components, _pages, 减少体积
-  // 后续再做, 使用escodegen？
-  return {
+  const code = escodegen.generate(ast)
+  const result = {
     app,
     pages,
     components: usingComponents,
-    configs
+    configs,
+    code
   }
+  cache.set(scriptHash, result)
+  return result
 }
 module.exports = walk

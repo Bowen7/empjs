@@ -1,9 +1,10 @@
 const path = require('path')
+const getEntry = require('../src/entry')
 
 module.exports = {
   mode: 'development',
   devtool: 'cheap-source-map',
-  entry: path.resolve(__dirname, './source/app.vue'),
+  entry: getEntry(path.resolve(__dirname, './source/app.vue')),
   module: {
     rules: [
       {
@@ -18,7 +19,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, '../dist'),
-    filename: 'bundle.js',
+    filename: '[name].js',
     libraryTarget: 'commonjs2'
   }
 }
