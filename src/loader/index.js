@@ -6,12 +6,12 @@ const loaderUtils = require('loader-utils')
 const walk = require('./walk')
 const utils = require('../utils/index')
 const helper = require('./helper')
+const { emitWxml, emitWxss, emitJs, emitJson } = require('./emit')
 const componentNormalizerPath = require.resolve(
   '../runtime/componentNormalizer'
 )
 const coreOptionsPath = require.resolve('../core/options.js')
 let appPath
-
 module.exports = function(source) {
   const loaderContext = this
   // 不要缓存，否则watch时监听不到emitFile的文件改变
@@ -53,19 +53,11 @@ module.exports = function(source) {
   const stylePath = utils.replaceExt(shortFilePath, '.wxss')
   helper.emitStyleFiles(loaderContext, style, stylePath, appPath)
 
-  const jsonPath = utils.replaceExt(shortFilePath, '.json')
-  this.emitFile(jsonPath, JSON.stringify(configs))
-
-  const jsPath = utils.replaceExt(shortFilePath, '.js')
-  const bundlePath = 'bundle.js'
-  const relativeBundlePath = path.relative(path.dirname(jsPath), bundlePath)
+  emitJson(loaderContext, configs, shortFilePath)
 
   const scopeId = app ? 'app' : hash(shortFilePath)
+  emitJs(loaderContext, scopeId, shortFilePath)
 
-  this.emitFile(
-    jsPath,
-    `const loadSource = require('${relativeBundlePath}').default;loadSource('${scopeId}')`
-  )
   if (app) {
     return `
 ${code}
@@ -73,9 +65,7 @@ import { loadSource } from ${stringifyRequest(`!${coreOptionsPath}`)};
 export default loadSource;
 `
   } else {
-    const template = selector(source, 'template')
-    const templatePath = utils.replaceExt(shortFilePath, '.wxml')
-    this.emitFile(templatePath, template)
+    emitWxml(loaderContext, source, shortFilePath)
 
     return `
 import options from './${fileName}?type=script';
