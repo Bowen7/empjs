@@ -2,15 +2,9 @@ const path = require('path')
 const hash = require('hash-sum')
 const qs = require('qs')
 const selector = require('./selector')
-const loaderUtils = require('loader-utils')
 const walk = require('./walk')
 const utils = require('../utils/index')
-const helper = require('./helper')
 const { emitWxml, emitWxss, emitJs, emitJson } = require('./emit')
-const componentNormalizerPath = require.resolve(
-  '../runtime/componentNormalizer'
-)
-const coreOptionsPath = require.resolve('../core/options.js')
 let appPath
 module.exports = function(source) {
   const loaderContext = this
@@ -23,17 +17,14 @@ module.exports = function(source) {
   const { type } = loaderQuery
   if (type) {
     if (type === 'script') {
-      const script = selector(source, type)
+      const script = selector(source, type).content
       const { code } = walk(script)
-      // console.log(script, code)
       return code
     }
-    return selector(source, type)
+    return selector(source, type).content
   }
 
-  const stringifyRequest = r => loaderUtils.stringifyRequest(loaderContext, r)
-
-  const script = selector(source, 'script')
+  const script = selector(source, 'script').content
   const { app, pages, components, configs, code } = walk(script)
   if (app) {
     appPath = context
@@ -45,33 +36,17 @@ module.exports = function(source) {
     configs.usingComponents = components
   }
 
-  // emit wxss json js
+  // emit wxss json js wxml
   const shortFilePath = path.relative(appPath, resourcePath)
-  const fileName = path.relative(context, resourcePath)
+  const scopeId = app ? 'app' : hash(shortFilePath)
 
-  const style = selector(source, 'style')
-  const stylePath = utils.replaceExt(shortFilePath, '.wxss')
-  helper.emitStyleFiles(loaderContext, style, stylePath, appPath)
+  emitWxss(loaderContext, source, scopeId, code, shortFilePath)
 
   emitJson(loaderContext, configs, shortFilePath)
 
-  const scopeId = app ? 'app' : hash(shortFilePath)
   emitJs(loaderContext, scopeId, shortFilePath)
 
-  if (app) {
-    return `
-${code}
-import { loadSource } from ${stringifyRequest(`!${coreOptionsPath}`)};
-export default loadSource;
-`
-  } else {
+  if (!app) {
     emitWxml(loaderContext, source, shortFilePath)
-
-    return `
-import options from './${fileName}?type=script';
-import normalizer from ${stringifyRequest(`!${componentNormalizerPath}`)};
-const component = normalizer(options, '${scopeId}');
-export default component;
-`
   }
 }

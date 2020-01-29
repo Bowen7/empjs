@@ -11,15 +11,22 @@ const select = (source, type) => {
     }
   })
   if (!result) {
-    return ''
+    return {
+      content: '',
+      attrs: {}
+    }
   }
+  const { attrs = {}, content = [] } = result
   if (type === 'template') {
-    return posthtml().process(result.content, {
-      sync: true,
-      skipParse: true
-    }).html
+    return {
+      content: posthtml().process(content, {
+        sync: true,
+        skipParse: true
+      }).html,
+      attrs
+    }
   } else {
-    return result.content.join('')
+    return { content: content.join(''), attrs }
   }
 }
 module.exports = select

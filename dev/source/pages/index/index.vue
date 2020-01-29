@@ -21,7 +21,7 @@ export default {
   }
 }
 </script>
-<style>
+<style lang="css">
 @import './style.css';
 .btn {
   margin-top: 100px;

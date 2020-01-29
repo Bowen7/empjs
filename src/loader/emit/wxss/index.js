@@ -6,6 +6,8 @@ const qs = require('qs')
 const path = require('path')
 const NativeModule = require('module')
 const utils = require('../../../utils')
+const emitResult = require('../result')
+const selector = require('../../selector')
 const exec = (loaderContext, code, filename) => {
   const _module = new NativeModule(filename, loaderContext)
   _module._compile(code, filename)
@@ -17,20 +19,21 @@ const getMainCompilation = compilation => {
   }
   return compilation
 }
-const emitWxss = (loaderContext, source) => {
+const emitWxss = (loaderContext, source, scopeId, code, shortFilePath) => {
+  let alreadyCb = false
+  const { attrs = {} } = selector(source, 'style')
+  const { lang = 'css' } = attrs
   const { resourceQuery } = loaderContext
   const rawQuery = resourceQuery.slice(1)
   const loaderQuery = qs.parse(rawQuery)
-  if (loaderQuery.child) {
-    return source
-  }
+
   const loaderCallback = loaderContext.async()
   const mainCompilation = getMainCompilation(loaderContext._compilation)
   const outputOptions = {
-    filename: 'css/css.js',
-    libraryTarget: 'commonjs2'
+    filename: 'css/css.js'
   }
   const compilerName = 'EMPJS_COMPILER'
+
   const childCompiler = mainCompilation.createChildCompiler(
     compilerName,
     outputOptions,
@@ -40,21 +43,35 @@ const emitWxss = (loaderContext, source) => {
       new LibraryTemplatePlugin('EMPJS_PLUGIN', 'commonjs2'),
       new SingleEntryPlugin(
         loaderContext.rootContext,
-        utils.stringifyQuery(loaderContext.resource, { childCompiler: true })
+        utils.stringifyQuery(loaderContext.resource, {
+          type: 'style',
+          lang
+        })
       )
     ]
   )
-  childCompiler.hooks.afterCompile.tapAsync('EMPJS_PLUGIN', compilation => {
-    const { assets } = compilation
-    for (const key in assets) {
-      if (path.extname(key) === '.js') {
-        const _source = assets[key].source()
-        const result = exec(loaderQuery, _source, loaderContext.resource)
-        console.log(result.default.toString())
+  childCompiler.hooks.afterCompile.tapAsync(
+    'EMPJS_PLUGIN',
+    childCompilation => {
+      const { assets } = childCompilation
+      for (const key in assets) {
+        if (path.extname(key) === '.js') {
+          const _source = assets[key].source()
+          const result = exec(loaderQuery, _source, loaderContext.resource)
+          const style = result.toString()
+          const wxssPath = utils.replaceExt(shortFilePath, '.wxss')
+          loaderContext.emitFile(wxssPath, style)
+        }
       }
+      childCompilation.assets = {}
+      !alreadyCb && emitResult(loaderContext, scopeId, code, loaderCallback)
     }
-    compilation.assets = {}
-    loaderCallback(null, source)
+  )
+  childCompiler.runAsChild((err, entries, childCompilation) => {
+    if (err) {
+      alreadyCb = true
+      loaderCallback(err)
+    }
   })
 }
 module.exports = emitWxss
