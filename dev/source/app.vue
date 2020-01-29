@@ -3,7 +3,7 @@
 // 但是它又必须要过loader, 暂定为app.vue
 import indexPage from './pages/index/index.vue'
 import logsPage from './pages/logs/logs.vue'
-import { createApp } from '../../src/core'
+import { createApp } from '../../src'
 createApp({
   _configs: {
     window: {

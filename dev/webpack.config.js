@@ -15,29 +15,6 @@ module.exports = {
           }
         ]
       },
-      // {
-      //   test: /\.vue$/,
-      //   oneOf: [
-      //     {
-      //       resourceQuery: resourceQuery => {
-      //         return resourceQuery.indexOf('style') > -1
-      //       },
-      //       use: [
-      //         { loader: 'css-loader' },
-      //         {
-      //           loader: path.resolve(__dirname, '../src/loader')
-      //         }
-      //       ]
-      //     },
-      //     {
-      //       use: [
-      //         {
-      //           loader: path.resolve(__dirname, '../src/loader')
-      //         }
-      //       ]
-      //     }
-      //   ]
-      // },
       {
         test: /\.css$/,
         use: [{ loader: 'css-loader' }]
