@@ -1,0 +1,21 @@
+{
+  "name": "empjs-base-demo",
+  "version": "0.0.1",
+  "description": "empjs-base-demo",
+  "scripts": {
+    "dev": "rm -rf dist && webpack --config ./webpack.config.js --watch --progress"
+  },
+  "files": [
+    "src"
+  ],
+  "author": "Bowen",
+  "license": "MIT",
+  "devDependencies": {
+    "css-loader": "^3.4.2",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  },
+  "dependencies": {
+    "empjs": "git+ssh://git@github.com:Bowen7/empjs.git#master"
+  }
+}

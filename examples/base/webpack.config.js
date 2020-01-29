@@ -1,17 +1,17 @@
 const path = require('path')
-const createRules = require('../src/rules')
+const createRules = require('empjs/src/rules')
 
 module.exports = {
   mode: 'development',
   devtool: 'cheap-source-map',
-  entry: path.resolve(__dirname, './source/app.vue'),
+  entry: path.resolve(__dirname, './src/app.vue'),
   module: {
     rules: createRules([
       {
         test: /\.vue$/,
         use: [
           {
-            loader: path.resolve(__dirname, '../src/loader')
+            loader: 'empjs/src/loader'
           }
         ]
       },
@@ -22,7 +22,7 @@ module.exports = {
     ])
   },
   output: {
-    path: path.resolve(__dirname, '../dist'),
+    path: path.resolve(__dirname, './dist'),
     filename: 'bundle.js',
     libraryTarget: 'commonjs2'
   }

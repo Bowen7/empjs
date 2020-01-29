@@ -1,7 +1,7 @@
 <script>
 import indexPage from './pages/index/index.vue'
 import logsPage from './pages/logs/logs.vue'
-import { createApp } from '../../src'
+import { createApp } from 'empjs/src'
 createApp({
   _configs: {
     window: {
