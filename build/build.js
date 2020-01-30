@@ -6,6 +6,7 @@ const path = require('path')
 shell.echo('开始build')
 shell.rm('-rf', 'lib')
 shell.cp('-R', 'src/', 'lib')
+shell.cp('-R', 'README.md', 'lib')
 const packageJson = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, '../package.json')).toString()
 )
