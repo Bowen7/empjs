@@ -16,6 +16,6 @@
     "webpack-cli": "^3.3.10"
   },
   "dependencies": {
-    "empjs": "git+ssh://git@github.com:Bowen7/empjs.git#master"
+    "empjs": "^0.0.1"
   }
 }

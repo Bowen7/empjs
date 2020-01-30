@@ -1,5 +1,5 @@
 const path = require('path')
-const createRules = require('empjs/src/rules')
+const createRules = require('empjs/rules')
 
 module.exports = {
   mode: 'development',
@@ -11,7 +11,7 @@ module.exports = {
         test: /\.vue$/,
         use: [
           {
-            loader: 'empjs/src/loader'
+            loader: 'empjs/loader'
           }
         ]
       },
