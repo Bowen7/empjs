@@ -17,7 +17,11 @@ const requireItem = [
   'main',
   'author',
   'license',
-  'dependencies'
+  'dependencies',
+  'keywords',
+  'repository',
+  'bugs',
+  'homepage'
 ]
 for (const key in packageJson) {
   if (!requireItem.includes(key)) {

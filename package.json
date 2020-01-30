@@ -8,9 +8,20 @@
     "build": "node build/build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "files": [
-    "src"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bowen7/empjs.git"
+  },
+  "keywords": [
+    "framework",
+    "miniprogram",
+    "single file",
+    "wx"
   ],
+  "bugs": {
+    "url": "https://github.com/Bowen7/empjs/issues"
+  },
+  "homepage": "https://github.com/Bowen7/empjs#readme",
   "author": "Bowen",
   "license": "MIT",
   "gitHooks": {
