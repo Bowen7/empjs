@@ -1,16 +1,24 @@
 const path = require('path')
 const hash = require('hash-sum')
 const qs = require('qs')
+const loaderUtils = require('loader-utils')
 const selector = require('./selector')
 const walk = require('./walk')
 const utils = require('../utils/index')
-const { emitWxml, emitWxss, emitJs, emitJson } = require('./emit')
+const {
+  emitWxml,
+  emitWxss,
+  emitJs,
+  emitJson,
+  emitProjectConfig
+} = require('./emit')
 let appPath
 module.exports = function(source) {
   const loaderContext = this
   // 不要缓存，否则watch时监听不到emitFile的文件改变
   loaderContext.cacheable(false)
-  const { context, resourcePath, resourceQuery } = this
+  const loaderOptions = loaderUtils.getOptions(this)
+  const { context, resourcePath, resourceQuery, rootContext } = this
   const rawQuery = resourceQuery.slice(1)
   const loaderQuery = qs.parse(rawQuery)
 
@@ -46,7 +54,10 @@ module.exports = function(source) {
 
   emitJs(loaderContext, scopeId, shortFilePath)
 
-  if (!app) {
+  if (app) {
+    const { root = rootContext } = loaderOptions
+    emitProjectConfig(loaderContext, root)
+  } else {
     emitWxml(loaderContext, source, shortFilePath)
   }
 }
