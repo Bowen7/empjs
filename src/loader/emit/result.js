@@ -1,9 +1,9 @@
 const loaderUtils = require('loader-utils')
 const path = require('path')
 const componentNormalizerPath = require.resolve(
-  '../../../runtime/componentNormalizer'
+  '../../runtime/componentNormalizer'
 )
-const coreOptionsPath = require.resolve('../../../core/options.js')
+const coreOptionsPath = require.resolve('../../core/options.js')
 // emitResult不实际emit文件
 const emitResult = (loaderContext, scopeId, code, callback) => {
   const stringifyRequest = r => loaderUtils.stringifyRequest(loaderContext, r)
