@@ -4,7 +4,7 @@ const qs = require('qs')
 const selector = require('./selector')
 const walk = require('./walk')
 const utils = require('../utils/index')
-const { emitWxml, emitWxss, emitJs, emitJson } = require('./emit')
+const { emitWxml, emitWxss, emitJs, emitJson, emitResult } = require('./emit')
 let appPath
 module.exports = function(source) {
   const loaderContext = this
@@ -39,14 +39,20 @@ module.exports = function(source) {
   // emit wxss json js wxml
   const shortFilePath = path.relative(appPath, resourcePath)
   const scopeId = app ? 'app' : hash(shortFilePath)
-
-  emitWxss(loaderContext, source, scopeId, code, shortFilePath)
-
-  emitJson(loaderContext, configs, shortFilePath)
-
-  emitJs(loaderContext, scopeId, shortFilePath)
+  const loaderCallback = loaderContext.async()
 
   if (!app) {
     emitWxml(loaderContext, source, shortFilePath)
   }
+
+  emitJson(loaderContext, configs, shortFilePath)
+  emitJs(loaderContext, scopeId, shortFilePath)
+  emitWxss(loaderContext, source, shortFilePath).then(
+    () => {
+      emitResult(loaderContext, scopeId, code, loaderCallback)
+    },
+    reason => {
+      loaderCallback(reason)
+    }
+  )
 }
