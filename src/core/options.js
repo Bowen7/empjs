@@ -1,6 +1,7 @@
 const optionsHash = {}
 const createApp = appOptions => {
   const { _pages = [] } = appOptions
+  console.log(appOptions)
   optionsHash.app = { options: appOptions, type: 'app' }
   const stack = []
   _pages.forEach(page => {

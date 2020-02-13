@@ -1,7 +1,7 @@
 const path = require('path')
-const acorn = require('acorn')
-const acornWalk = require('acorn-walk')
-const escodegen = require('escodegen')
+const parser = require('@babel/parser')
+const generate = require('@babel/generator').default
+const traverse = require('@babel/traverse').default
 const ast2obj = require('./ast2obj')
 const utils = require('../utils')
 const walk = script => {
@@ -12,31 +12,34 @@ const walk = script => {
   // 实际用到的components
   let usingComponents
   let app = false
-  const ast = acorn.parse(script, { sourceType: 'module' })
-  acornWalk.simple(ast, {
-    CallExpression(node) {
-      const { callee, arguments: _arguments } = node
+  const ast = parser.parse(script, { sourceType: 'module' })
+
+  traverse(ast, {
+    CallExpression(nodePath) {
+      const node = nodePath.node
+      const { callee } = node
       if (callee.name !== 'createApp') {
         return
       }
       // 调用了createApp就是app.vue
       // 所以一个项目只能有一个地方调用createApp
       app = true
-      const options = _arguments[0]
-      const { properties } = options
-      options.properties = properties.filter(prop => {
-        const { key, value } = prop
+      const argumentsPath = nodePath.get('arguments.0')
+      const properties = argumentsPath.get('properties')
+      properties.forEach(prop => {
+        const propNode = prop.node
+        const { key, value } = propNode
         const { name = '' } = key
         if (name === '_configs') {
+          // eslint-disable-next-line no-eval
           configs = ast2obj(value)
-          return false
-        } else if (name === '_pages') {
-          pages = ast2obj(value)
+          pages = configs.pages || []
+          prop.remove()
         }
-        return true
       })
     },
-    ImportDeclaration(node) {
+    ImportDeclaration(nodePath) {
+      const node = nodePath.node
       const { specifiers, source } = node
       const { value } = source
       if (path.extname(value) === '.vue') {
@@ -46,7 +49,8 @@ const walk = script => {
         importSource[name] = utils.replaceExt(value, '')
       }
     },
-    ExportDefaultDeclaration(node) {
+    ExportDefaultDeclaration(nodePath) {
+      const node = nodePath.node
       const { declaration } = node
       if (declaration.type !== 'ObjectExpression') {
         return
@@ -56,7 +60,8 @@ const walk = script => {
         const { key, value } = prop
         const { name = '' } = key
         if (name === '_configs') {
-          configs = ast2obj(value)
+          // eslint-disable-next-line no-eval
+          configs = eval('(' + generate(value).code + ')')
           return false
         } else if (name === '_components') {
           components = ast2obj(value)
@@ -80,7 +85,7 @@ const walk = script => {
     }
   }
 
-  const code = escodegen.generate(ast)
+  const code = generate(ast).code
   return {
     app,
     pages,

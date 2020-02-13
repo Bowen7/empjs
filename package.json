@@ -43,9 +43,9 @@
     "yorkie": "^2.0.0"
   },
   "dependencies": {
-    "acorn": "^7.1.0",
-    "acorn-walk": "^7.0.0",
-    "escodegen": "^1.13.0",
+    "@babel/generator": "^7.8.4",
+    "@babel/parser": "^7.8.4",
+    "@babel/traverse": "^7.8.4",
     "hash-sum": "^2.0.0",
     "loader-utils": "^1.2.3",
     "postcss": "^7.0.26",
