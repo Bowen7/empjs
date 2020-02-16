@@ -31,10 +31,11 @@ const walk = script => {
         const { key, value } = propNode
         const { name = '' } = key
         if (name === '_configs') {
-          // eslint-disable-next-line no-eval
           configs = ast2obj(value)
-          pages = configs.pages || []
           prop.remove()
+        }
+        if (name === '_pages') {
+          pages = ast2obj(value) || []
         }
       })
     },
@@ -50,23 +51,22 @@ const walk = script => {
       }
     },
     ExportDefaultDeclaration(nodePath) {
-      const node = nodePath.node
-      const { declaration } = node
-      if (declaration.type !== 'ObjectExpression') {
+      const declarationPath = nodePath.get('declaration')
+      if (declarationPath.type !== 'ObjectExpression') {
         return
       }
-      const { properties = [] } = declaration
-      declaration.properties = properties.filter(prop => {
-        const { key, value } = prop
+      const properties = declarationPath.get('properties')
+      properties.forEach(prop => {
+        const propNode = prop.node
+        const { key, value } = propNode
         const { name = '' } = key
         if (name === '_configs') {
-          // eslint-disable-next-line no-eval
-          configs = eval('(' + generate(value).code + ')')
-          return false
-        } else if (name === '_components') {
-          components = ast2obj(value)
+          configs = ast2obj(value)
+          prop.remove()
         }
-        return true
+        if (name === '_components') {
+          components = ast2obj(value) || {}
+        }
       })
     }
   })
