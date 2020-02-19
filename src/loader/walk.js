@@ -4,6 +4,9 @@ const generate = require('@babel/generator').default
 const traverse = require('@babel/traverse').default
 const ast2obj = require('./ast2obj')
 const utils = require('../utils')
+const CONFIGS_NAME = ['configs', '_configs']
+const PAGES_NAME = ['pages', '_pages']
+const COMPONENTS_NAME = ['components', '_components']
 const walk = script => {
   const importSource = {}
   let pages
@@ -30,11 +33,11 @@ const walk = script => {
         const propNode = prop.node
         const { key, value } = propNode
         const { name = '' } = key
-        if (name === '_configs') {
+        if (CONFIGS_NAME.includes(name)) {
           configs = ast2obj(value)
           prop.remove()
         }
-        if (name === '_pages') {
+        if (PAGES_NAME.includes(name)) {
           pages = ast2obj(value) || []
         }
       })
@@ -60,11 +63,11 @@ const walk = script => {
         const propNode = prop.node
         const { key, value } = propNode
         const { name = '' } = key
-        if (name === '_configs') {
+        if (CONFIGS_NAME.includes(name)) {
           configs = ast2obj(value)
           prop.remove()
         }
-        if (name === '_components') {
+        if (COMPONENTS_NAME.includes(name)) {
           components = ast2obj(value) || {}
         }
       })
