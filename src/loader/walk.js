@@ -53,12 +53,11 @@ const walk = script => {
         importSource[name] = utils.replaceExt(value, '')
       }
     },
-    ExportDefaultDeclaration(nodePath) {
-      const declarationPath = nodePath.get('declaration')
-      if (declarationPath.type !== 'ObjectExpression') {
+    ObjectExpression(nodePath) {
+      if (nodePath.type !== 'ObjectExpression') {
         return
       }
-      const properties = declarationPath.get('properties')
+      const properties = nodePath.get('properties')
       properties.forEach(prop => {
         const propNode = prop.node
         const { key, value } = propNode

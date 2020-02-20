@@ -33,7 +33,6 @@ module.exports = function(source) {
       return utils.replaceExt(path.relative(appPath, pagePath), '')
     })
   } else {
-    console.log(components)
     configs.usingComponents = components
   }
 
