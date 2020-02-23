@@ -1,4 +1,5 @@
-const noop = () => {}
+// noop直接返回空对象
+const noop = () => ({})
 let store
 const PAGE_LIFETIMES_MAP = {
   install: 'onLoad',
@@ -15,7 +16,6 @@ const connectStore = (context, mapStateToProps) => {
       context.setData(newState)
     })
   }
-  return noop
 }
 const connect = (
   mapStateToProps = noop,
@@ -25,6 +25,8 @@ const connect = (
   const lifetimesMap = component ? COMPONENT_LIFETIMES_MAP : PAGE_LIFETIMES_MAP
   const originBehaviors = originOptions.behaviors || []
   let unSubscribeStore
+
+  // Behavior 小程序内置关键字
   // eslint-disable-next-line no-undef
   const reduxBehavior = Behavior({
     definitionFilter(defFields) {
