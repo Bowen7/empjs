@@ -22,6 +22,11 @@ const connect = (
   mapDispatchToProps = noop,
   component = true
 ) => originOptions => {
+  if (typeof mapDispatchToProps === 'boolean') {
+    component = mapDispatchToProps
+    mapDispatchToProps = noop
+  }
+
   const lifetimesMap = component ? COMPONENT_LIFETIMES_MAP : PAGE_LIFETIMES_MAP
   const originBehaviors = originOptions.behaviors || []
   let unSubscribeStore

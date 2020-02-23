@@ -49,7 +49,6 @@
     "@babel/traverse": "^7.8.4",
     "hash-sum": "^2.0.0",
     "loader-utils": "^1.2.3",
-    "postcss": "^7.0.26",
     "posthtml": "^0.11.6",
     "qs": "^6.9.1"
   }
