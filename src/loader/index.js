@@ -18,14 +18,14 @@ module.exports = function(source) {
   if (type) {
     if (type === 'script') {
       const script = selector(source, type).content
-      const { code } = walk(script)
+      const { code } = walk(script, loaderContext)
       return code
     }
     return selector(source, type).content
   }
 
   const script = selector(source, 'script').content
-  const { app, pages, components, configs, code } = walk(script)
+  const { app, pages, components, configs, code } = walk(script, loaderContext)
   if (app) {
     appPath = context
     configs.pages = pages.map(page => {

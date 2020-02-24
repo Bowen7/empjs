@@ -1,4 +1,5 @@
 const qs = require('qs')
+const path = require('path')
 const replaceExt = (originPath, newExt) => {
   const lastDotIndex = originPath.lastIndexOf('.')
   const lastSlashIndex = originPath.lastIndexOf('/')
@@ -31,8 +32,31 @@ const stringifyQuery = (url, query) => {
   }
   return url + delimiter + queryString
 }
+const getAlias = loaderContext => {
+  try {
+    return loaderContext._compiler.options.resolve.alias
+  } catch (error) {
+    return {}
+  }
+}
+const transAlias = (url, loaderContext) => {
+  const alias = getAlias(loaderContext)
+  const { context } = loaderContext
+  const urlBlocks = url.split('/')
+  if (urlBlocks && urlBlocks.length > 0) {
+    const firstBlock = urlBlocks.shift()
+    if (alias[firstBlock]) {
+      urlBlocks.unshift(alias[firstBlock])
+      const absUrl = urlBlocks.join('/')
+      return path.relative(context, absUrl)
+    }
+  }
+  return url
+}
 module.exports = {
   replaceExt,
   parseQuery,
-  stringifyQuery
+  stringifyQuery,
+  getAlias,
+  transAlias
 }
