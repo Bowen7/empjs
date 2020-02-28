@@ -5,6 +5,7 @@ const componentNormalizerPath = require.resolve(
 )
 const coreOptionsPath = require.resolve('../../core/options.js')
 // emitResult不实际emit文件
+// todo: use loadModule
 const emitResult = (loaderContext, scopeId, code, callback) => {
   const stringifyRequest = r => loaderUtils.stringifyRequest(loaderContext, r)
   const { context, resourcePath } = loaderContext
@@ -14,9 +15,11 @@ const emitResult = (loaderContext, scopeId, code, callback) => {
       null,
       `
     ${code}
-    import { loadSource } from ${stringifyRequest(`!${coreOptionsPath}`)};
-    export default loadSource;
-    `
+    import { loadOptions } from ${stringifyRequest(`!${coreOptionsPath}`)};
+    export default loadOptions;
+    `,
+      null,
+      'abcd'
     )
   } else {
     callback(
@@ -24,8 +27,8 @@ const emitResult = (loaderContext, scopeId, code, callback) => {
       `
     import options from './${fileName}?type=script';
     import normalizer from ${stringifyRequest(`!${componentNormalizerPath}`)};
-    const component = normalizer(options, '${scopeId}');
-    export default component;
+    const scopedId = normalizer(options, '${scopeId}');
+    export default scopedId;
     `
     )
   }

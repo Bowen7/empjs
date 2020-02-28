@@ -4,7 +4,7 @@
   "description": "enhanced miniprogram",
   "main": "./core/index.js",
   "scripts": {
-    "dev": "rm -rf dist && webpack --config ./dev/webpack.config.js --watch --progress",
+    "dev": "rm -rf dist && webpack --config ./dev/webpack.config.js --watch",
     "build": "node build/build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -47,6 +47,7 @@
     "@babel/generator": "^7.8.4",
     "@babel/parser": "^7.8.4",
     "@babel/traverse": "^7.8.4",
+    "enhanced-resolve": "^4.1.1",
     "hash-sum": "^2.0.0",
     "loader-utils": "^1.2.3",
     "posthtml": "^0.11.6",

@@ -2,8 +2,9 @@ const path = require('path')
 const parser = require('@babel/parser')
 const generate = require('@babel/generator').default
 const traverse = require('@babel/traverse').default
+const resolve = require('enhanced-resolve')
 const ast2obj = require('./ast2obj')
-const utils = require('../utils')
+const utils = require('.')
 const CONFIGS_NAME = ['configs', '_configs']
 const PAGES_NAME = ['pages', '_pages']
 const COMPONENTS_NAME = ['components', '_components']
@@ -15,8 +16,11 @@ const walk = (script, loaderContext) => {
   // 实际用到的components
   let usingComponents
   let app = false
+  const { context } = loaderContext
   const ast = parser.parse(script, { sourceType: 'module' })
 
+  const customResolveOptions = loaderContext._compiler.options.resolve || {}
+  const customResolve = resolve.create.sync(customResolveOptions)
   traverse(ast, {
     CallExpression(nodePath) {
       const node = nodePath.node
@@ -46,11 +50,11 @@ const walk = (script, loaderContext) => {
       const node = nodePath.node
       const { specifiers, source } = node
       let { value } = source
-      if (path.extname(value) === '.vue') {
+      if (path.extname(value) === '.vue' || path.extname(value) === '.wxml') {
         const specifier = specifiers[0]
         const { local = {} } = specifier
         const { name = '' } = local
-        value = utils.transAlias(value, loaderContext)
+        value = path.relative(context, customResolve(context, value))
         importSource[name] = utils.replaceExt(value, '')
       }
     },
