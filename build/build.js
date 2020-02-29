@@ -1,9 +1,11 @@
 // 只是复制src目录下的所有文件到lib目录下
 // 最后会在lib文件夹下npm publish
 const shell = require('shelljs')
+const chalk = require('chalk')
 const fs = require('fs')
 const path = require('path')
-shell.echo('开始build')
+const log = console.log
+log(chalk.cyan('build start'))
 shell.rm('-rf', 'lib')
 shell.cp('-R', 'src/', 'lib')
 shell.cp('-R', 'README.md', 'lib')
@@ -29,8 +31,12 @@ for (const key in packageJson) {
     delete packageJson[key]
   }
 }
+const version = packageJson.version || ''
 fs.writeFileSync(
   path.resolve(__dirname, '../lib/package.json'),
   JSON.stringify(packageJson, null, '\t')
 )
-shell.echo('build完毕，到lib下npm publish~')
+log()
+log(chalk.green(`${version} build successfully,`))
+log(chalk.green("please go to '/lib' and run 'npm publish'"))
+log()
