@@ -1,14 +1,6 @@
 // noop直接返回空对象
 const noop = () => ({})
 let store
-const PAGE_LIFETIMES_MAP = {
-  install: 'onLoad',
-  uninstall: 'onUnload'
-}
-const COMPONENT_LIFETIMES_MAP = {
-  install: 'attached',
-  uninstall: 'detached'
-}
 const connectStore = (context, mapStateToProps) => {
   if (store && mapStateToProps) {
     return store.subscribe(() => {
@@ -19,15 +11,8 @@ const connectStore = (context, mapStateToProps) => {
 }
 const connect = (
   mapStateToProps = noop,
-  mapDispatchToProps = noop,
-  component = true
+  mapDispatchToProps = noop
 ) => originOptions => {
-  if (typeof mapDispatchToProps === 'boolean') {
-    component = mapDispatchToProps
-    mapDispatchToProps = noop
-  }
-
-  const lifetimesMap = component ? COMPONENT_LIFETIMES_MAP : PAGE_LIFETIMES_MAP
   const originBehaviors = originOptions.behaviors || []
   let unSubscribeStore
 
@@ -42,22 +27,15 @@ const connect = (
         ...extraData
       }
       const dispatchMethods = mapDispatchToProps(store.dispatch)
-      if (component) {
-        defFields.methods = {
-          ...originMethods,
-          ...dispatchMethods
-        }
-      } else {
-        defFields = {
-          ...defFields,
-          ...dispatchMethods
-        }
+      defFields.methods = {
+        ...originMethods,
+        ...dispatchMethods
       }
     },
-    [lifetimesMap.install]: function() {
+    attached: function() {
       unSubscribeStore = connectStore(this, mapStateToProps)
     },
-    [lifetimesMap.uninstall]: function() {
+    detached: function() {
       unSubscribeStore && unSubscribeStore()
     }
   })
