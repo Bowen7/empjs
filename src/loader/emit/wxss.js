@@ -47,12 +47,17 @@ const emitWxss = (loaderContext, source, shortFilePath) => {
     )
     childCompiler.hooks.afterCompile.tapAsync(
       'EMPJS_PLUGIN',
-      childCompilation => {
+      (childCompilation, callback) => {
         const { assets } = childCompilation
         for (const key in assets) {
           if (path.extname(key) === '.js') {
             const _source = assets[key].source()
-            const result = exec(loaderContext, _source, loaderContext.resource)
+            let result = ''
+            try {
+              result = exec(loaderContext, _source, loaderContext.resource)
+            } catch (error) {
+              return loaderCallback(error)
+            }
             const style = result.toString()
             const wxssPath = utils.replaceExt(shortFilePath, '.wxss')
             loaderContext.emitFile(wxssPath, style)
@@ -64,7 +69,10 @@ const emitWxss = (loaderContext, source, shortFilePath) => {
     )
     childCompiler.runAsChild((err, entries, childCompilation) => {
       if (err) {
-        loaderCallback(err)
+        return loaderCallback(err)
+      }
+      if (childCompilation.errors.length > 0) {
+        loaderCallback(childCompilation.errors[0])
       }
     })
   })
