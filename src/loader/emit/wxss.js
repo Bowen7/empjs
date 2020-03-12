@@ -65,6 +65,7 @@ const emitWxss = (loaderContext, source, shortFilePath) => {
         }
         childCompilation.assets = {}
         resolve()
+        callback()
       }
     )
     childCompiler.runAsChild((err, entries, childCompilation) => {
@@ -72,8 +73,14 @@ const emitWxss = (loaderContext, source, shortFilePath) => {
         return loaderCallback(err)
       }
       if (childCompilation.errors.length > 0) {
-        loaderCallback(childCompilation.errors[0])
+        return loaderCallback(childCompilation.errors[0])
       }
+      childCompilation.fileDependencies.forEach(dep => {
+        loaderContext.addDependency(dep)
+      }, loaderContext)
+      childCompilation.contextDependencies.forEach(dep => {
+        loaderContext.addContextDependency(dep)
+      }, loaderContext)
     })
   })
 }
