@@ -1,5 +1,5 @@
 const RuleSet = require('webpack/lib/RuleSet')
-const utils = require('../utils')
+const utils = require('.')
 // 借鉴了VueLoaderPlugin
 const ruleMatcher = fakeFile => {
   return rule => {

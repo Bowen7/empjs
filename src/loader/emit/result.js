@@ -3,7 +3,7 @@ const path = require('path')
 const componentNormalizerPath = require.resolve(
   '../../runtime/componentNormalizer'
 )
-const coreOptionsPath = require.resolve('../../core/options.js')
+const coreOptionsPath = require.resolve('../../runtime/index.js')
 // emitResult不实际emit文件
 // todo: use loadModule
 const emitResult = (loaderContext, scopeId, code, callback) => {

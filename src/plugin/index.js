@@ -1,7 +1,7 @@
 const ConstDependency = require('webpack/lib/dependencies/ConstDependency')
 const webpack = require('webpack')
 const path = require('path')
-const transRules = require('../rules')
+const transRules = require('../utils/rules')
 
 const pluginName = 'EmpjsPlugin'
 class EmpjsPlugin {
@@ -12,11 +12,11 @@ class EmpjsPlugin {
 
     const providePlugin = new webpack.ProvidePlugin({
       Component: [
-        path.join(__dirname, '../core/options.js'),
+        path.join(__dirname, '../runtime/index.js'),
         'registerOptions'
       ],
       preRegisterOptions: [
-        path.join(__dirname, '../core/options.js'),
+        path.join(__dirname, '../runtime/index.js'),
         'preRegisterOptions'
       ]
     })

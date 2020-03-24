@@ -1,4 +1,4 @@
-import { registerOptions } from '../core/options'
+import { registerOptions } from '../runtime'
 export default function(options, scopeId) {
   const { props, properties } = options
   if (props && !properties) {
