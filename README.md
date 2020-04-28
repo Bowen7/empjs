@@ -6,7 +6,7 @@ empjs 意为 enhanced miniprogram 增强版小程序
 
 注：1.0.0 以下版本为测试版，不保证向下兼容
 
-当前 Readme 对应版本：empjs@0.0.8
+当前 Readme 对应版本：empjs@0.0.9
 
 ### 基础使用
 

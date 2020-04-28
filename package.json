@@ -1,6 +1,6 @@
 {
   "name": "empjs",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "enhanced miniprogram",
   "main": "./runtime/index.js",
   "scripts": {
