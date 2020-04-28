@@ -1,0 +1,5 @@
+.title {
+  color: blue;
+  margin-top: 50rpx;
+  text-align: center;
+}

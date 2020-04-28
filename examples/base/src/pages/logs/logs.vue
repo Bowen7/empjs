@@ -12,11 +12,13 @@ export default {
   data: {
     logText: ''
   },
-  onLoad() {
-    const logText = getCurTime()
-    this.setData({
-      logText
-    })
+  methods: {
+    onLoad() {
+      const logText = getCurTime()
+      this.setData({
+        logText
+      })
+    }
   }
 }
 </script>
@@ -26,6 +28,6 @@ export default {
   margin-top: 200px;
 }
 .log {
-  color: gray;
+  color: red;
 }
 </style>

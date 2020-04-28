@@ -2,8 +2,10 @@
 import indexPage from './pages/index/index.vue'
 import logsPage from './pages/logs/logs.vue'
 import { createApp } from 'empjs'
+import store from './store'
 createApp({
-  _configs: {
+  store,
+  configs: {
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
@@ -12,7 +14,7 @@ createApp({
     },
     style: 'v2'
   },
-  _pages: [indexPage, logsPage],
+  pages: [indexPage, logsPage],
   onLaunch: function() {
     console.log('app launch')
   }

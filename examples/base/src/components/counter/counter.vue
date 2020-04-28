@@ -5,21 +5,20 @@
   </view>
 </template>
 <script>
-export default {
-  _configs: {
+import { connect } from 'empjs/redux'
+import { add } from '../../store'
+export default connect(
+  state => ({ count: state.count }),
+  dispatch => ({
+    add: () => dispatch(add())
+  })
+)({
+  configs: {
     component: true
   },
-  data: {
-    count: 0
-  },
-  methods: {
-    add() {
-      this.setData({
-        count: this.data.count + 1
-      })
-    }
-  }
-}
+  data: {},
+  methods: {}
+})
 </script>
 <style>
 .counter-wrap {
