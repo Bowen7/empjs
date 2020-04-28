@@ -24,6 +24,6 @@
     "eslint-plugin-standard": "^4.0.1"
   },
   "dependencies": {
-    "empjs": "^0.0.1"
+    "empjs": "0.0.8"
   }
 }

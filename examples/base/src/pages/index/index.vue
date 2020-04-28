@@ -25,6 +25,5 @@ export default {
 @import './style.css';
 .btn {
   margin-top: 100px;
-  color: aliceblue;
 }
 </style>

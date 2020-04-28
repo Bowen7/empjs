@@ -1,8 +1,8 @@
 {
 	"name": "empjs",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"description": "enhanced miniprogram",
-	"main": "./core/index.js",
+	"main": "./runtime/index.js",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Bowen7/empjs.git"
