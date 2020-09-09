@@ -66,10 +66,10 @@ const walk = (script, loaderContext) => {
       properties.forEach((prop) => {
         const propNode = prop.node
         const { key, value } = propNode
-        const { name = '' } = key
         if (!key) {
           return
         }
+        const { name = '' } = key
         if (CONFIGS_NAME.includes(name)) {
           configs = ast2obj(value)
           prop.remove()
