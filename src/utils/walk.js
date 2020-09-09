@@ -78,7 +78,7 @@ const walk = (script, loaderContext) => {
           components = ast2obj(value) || {}
         }
       })
-    },
+    }
   })
   if (app) {
     pages = pages.map((page) => {
@@ -101,7 +101,7 @@ const walk = (script, loaderContext) => {
     pages,
     components: usingComponents,
     configs,
-    code,
+    code
   }
 }
 module.exports = walk
